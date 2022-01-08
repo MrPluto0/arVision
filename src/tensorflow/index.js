@@ -5,8 +5,7 @@ import { ControllerDataset } from "./controller_dataset";
 
 // predicting 4 classes for up, down, left, and right.
 const NUM_CLASSES = 4;
-const CONTROLS = ["up", "down", "left", "right"];
-const CONTROL_CODES = [38, 40, 37, 39];
+const CONTROLS = ["right", "down", "left", "up"];
 
 const controllerDataset = new ControllerDataset(NUM_CLASSES);
 
@@ -127,7 +126,7 @@ export default {
     });
   },
 
-  async predict() {
+  async predict(callback) {
     isPredicting = true;
     while (isPredicting) {
       // Capture the frame from the webcam.
@@ -145,7 +144,8 @@ export default {
       // to the class the model thinks is the most probable given the input.
       const predictedClass = predictions.as1D().argMax();
       const classId = (await predictedClass.data())[0];
-      console.log(classId);
+
+      callback && callback(classId);
 
       img.dispose();
 

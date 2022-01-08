@@ -3,7 +3,10 @@ import * as PIXI from "pixi.js";
 let app;
 let startContainer, introContainer, mainContainer;
 let startBtn, nextBtn;
+
+let label = 0;
 let textE;
+let predictHandler;
 
 const setCenter = (son, parent) => {
   son.x = parent.width / 2;
@@ -14,7 +17,7 @@ const setCenter = (son, parent) => {
 };
 
 const setRotate = (ele, angle) => {
-  ele.rotation += (Math.PI * angle) / 180;
+  ele.rotation = (Math.PI * angle) / 180;
 };
 
 const newButton = (parent, text, clickHandler) => {
@@ -88,8 +91,11 @@ const showStartContainer = () => {
   mask.addChild(logo);
   setCenter(logo, mask);
   logo.y -= 100;
+
+  let total = 0;
   app.ticker.add((delta) => {
-    setRotate(logo, delta);
+    total += delta;
+    setRotate(logo, total);
   });
 
   // welcome text at the beginning
@@ -188,6 +194,7 @@ const showMainContainer = () => {
   title.y = 20;
   mask.addChild(title);
 
+  // main text: 'E'
   textE = new PIXI.Text("E", {
     fontSize: 80,
     fill: 0xffffff,
@@ -196,6 +203,7 @@ const showMainContainer = () => {
   mask.addChild(textE);
   setCenter(textE, mask);
 
+  // button: return the start container
   let returnBtn = newButton(mask, "Return", () => {
     app.stage.removeChild(mainContainer);
     showStartContainer();
@@ -203,18 +211,17 @@ const showMainContainer = () => {
   returnBtn.x = returnBtn.width / 2 + 10;
   returnBtn.y = returnBtn.height / 2 + 10;
 
-  let counter = 3;
-  let timer = setInterval(() => {
-    if (counter <= 0) {
-      clearInterval(timer);
-      showMsgContainer("Overtime ! ！!");
-    }
-    console.log("[ArVision] Checking...");
-    counter -= 0.5;
-  }, 500);
+  // counter text
+  // let counter = new PIXI.Text("");
 
+  predictHandler();
+
+  // next E --- rotate E
   let nextBtn = newButton(mask, "Next", () => {
-    setRotate(textE, 90 * Math.floor(Math.random() * 4));
+    label = Math.floor(Math.random() * 4);
+    console.log(label);
+    setRotate(textE, 90 * label);
+    predictHandler();
   });
   nextBtn.y += textE.height + 50;
 
@@ -237,9 +244,27 @@ export default {
 
     showStartContainer();
   },
-  addStartHanlder(clickHandler) {
+  addStartHandler(clickHandler) {
     startBtn.on("click", (event) => {
       clickHandler && clickHandler(event);
     });
+  },
+  addPredictHandler(handler) {
+    predictHandler = () => {
+      // core step !!!
+      let counter = 3;
+      let timer = setInterval(() => {
+        console.log("[ArVision] Checking...");
+        if (counter <= 0) {
+          clearInterval(timer);
+          showMsgContainer("Overtime ! ！!");
+        }
+        if (handler(label)) {
+          clearInterval(timer);
+          showMsgContainer("Nice Job ! ！!");
+        }
+        counter -= 0.5;
+      }, 500);
+    };
   },
 };

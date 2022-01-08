@@ -3,12 +3,13 @@ import { ref, reactive, onMounted } from "vue";
 import tf from "@/tensorflow";
 import pixi from "@/pixi";
 
-const webcam = ref(null)
-const noWebcam = ref(null)
-const pixiDom = ref(null)
-const labelsRef = ref([])
+const nowLabel = ref(-1);
+const webcam = ref(null);
+const noWebcam = ref(null);
+const pixiDom = ref(null);
+const labelsRef = ref([]);
 
-const labels = reactive(["up", "down", "left", "right"])
+const labels = reactive(["right", "down", "left", "up",])
 
 const addRef = (el) => {
   labelsRef.value.push(el);
@@ -16,10 +17,13 @@ const addRef = (el) => {
 
 onMounted(() => {
   tf.init(webcam.value, noWebcam.value);
-
   pixi.init(pixiDom.value);
-  pixi.addStartHanlder(() => {
+  pixi.addStartHandler(() => {
     console.log("[ArVision] Start Gaming...");
+  })
+  pixi.addPredictHandler((targetLabel) => {
+    console.log("[ArVision] now: %d, target: %d", nowLabel.value, targetLabel);
+    return targetLabel === nowLabel.value
   })
 })
 
@@ -31,7 +35,14 @@ const train = () => {
 
 const predict = () => {
   console.log("[ArVision] Predict...");
-  tf.predict();
+  tf.predict((label) => {
+    nowLabel.value = label;
+  });
+}
+
+const stop = () => {
+  console.log("[ArVision] Stop Predict...");
+  tf.stopPredict();
 }
 
 // add webcam image
@@ -56,15 +67,16 @@ const handler = (label) => {
       </div>
       <button @click="train" class="train-btn">Train</button>
       <button @click="predict" class="predict-btn">Predict</button>
+      <button @click="stop" class="stop-btn">Stop</button>
     </div>
     <div class="thumbs-outer">
-      <h3>Examples for game</h3>
+      <h3>Pose Examples for game</h3>
       <div class="thumbs-wrapper">
         <div class="thumb" v-for="(item,index) in labels" :key="index">
-          <div class="item">
+          <div class="item" :class="nowLabel == index ? 'active' : ''">
             <canvas class="thumb-canvas" width="224" height="224" :ref="addRef"></canvas>
           </div>
-          <button class="thumb-btn" @click="handler(index)">Add Example for {{ item }}</button>
+          <button class="thumb-btn" @click="handler(index)">Add example for {{ item }}</button>
         </div>
       </div>
     </div>
@@ -89,13 +101,22 @@ const handler = (label) => {
     width: 100%;
     margin-top: 5px;
     outline: none;
-    padding: 5px 10px;
+    padding: 7px 10px;
     border-radius: 5px;
     border: none;
+    color: white;
+    &:active {
+      transform: scale(0.98);
+    }
   }
   .train-btn {
+    background-color: #67c23a;
+  }
+  .predict-btn {
     background-color: #409eff;
-    color: white;
+  }
+  .stop-btn {
+    background-color: #f56c6c;
   }
 }
 .no-webcam {
@@ -111,7 +132,10 @@ const handler = (label) => {
     .item {
       padding: 10px;
       border-radius: 10px;
-      border: 2px solid silver;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      &.active {
+        box-shadow: 0 0 10px rgba(23, 189, 255, 0.9);
+      }
     }
     .thumb-canvas {
       height: 150px;
@@ -119,9 +143,9 @@ const handler = (label) => {
       transform: scaleX(-1);
     }
     button {
-      margin-top: 5px;
+      margin: 10px 0;
       outline: none;
-      padding: 5px 10px;
+      padding: 7px 10px;
       border-radius: 5px;
       border: none;
       background-color: #67c23a;
