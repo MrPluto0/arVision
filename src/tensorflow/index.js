@@ -146,6 +146,7 @@ export default {
       const predictedClass = predictions.as1D().argMax();
       const classId = (await predictedClass.data())[0];
       console.log(classId);
+
       img.dispose();
 
       // ui.predictClass(classId);
@@ -175,5 +176,9 @@ export default {
     ctx.putImageData(imageData, 0, 0);
 
     img.dispose();
+  },
+
+  stopPredict() {
+    isPredicting = false;
   },
 };
