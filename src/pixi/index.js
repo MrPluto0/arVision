@@ -200,6 +200,7 @@ const showMainContainer = () => {
     fill: 0xffffff,
     align: "center",
   });
+
   mask.addChild(textE);
   setCenter(textE, mask);
 
@@ -212,16 +213,31 @@ const showMainContainer = () => {
   returnBtn.y = returnBtn.height / 2 + 10;
 
   // counter text
-  // let counter = new PIXI.Text("");
+  let counter = new PIXI.Text("0s", {
+    fontSize: 30,
+    fill: 0xffffff,
+  });
+  mask.addChild(counter);
+  setCenter(counter, mask);
+  counter.y = returnBtn.height + returnBtn.y + 10;
 
-  predictHandler();
+  // eyeSight
+  let sight = new PIXI.Text("Your eyesight is xx", {
+    fontSize: 30,
+    fill: 0xffffff,
+  });
+  mask.addChild(sight);
+  sight.x = 10;
+  sight.y = mask.height - sight.height;
+
+  predictHandler(counter, sight);
 
   // next E --- rotate E
   let nextBtn = newButton(mask, "Next", () => {
     label = Math.floor(Math.random() * 4);
     console.log(label);
     setRotate(textE, 90 * label);
-    predictHandler();
+    predictHandler(counter, sight);
   });
   nextBtn.y += textE.height + 50;
 
@@ -236,7 +252,7 @@ export default {
   init(pixi) {
     app = new PIXI.Application({
       width: 640,
-      height: 700,
+      height: 750,
       backgroundColor: 0xea1e63,
       backgroundAlpha: 0.9,
     });
@@ -250,18 +266,24 @@ export default {
     });
   },
   addPredictHandler(handler) {
-    predictHandler = () => {
+    predictHandler = (counterText, sightText) => {
       // core step !!!
       let counter = 3;
       let timer = setInterval(() => {
         console.log("[ArVision] Checking...");
+        counterText.text = counter + "s";
         if (counter <= 0) {
           clearInterval(timer);
           showMsgContainer("Overtime ! ！!");
+          textE.style.fontSize = 80;
         }
         if (handler(label)) {
           clearInterval(timer);
           showMsgContainer("Nice Job ! ！!");
+          let size = 4 + (80 - textE.style.fontSize) / 70;
+          console.log(size, textE.style.fontSize);
+          sightText.text = "Your eyesight is " + size;
+          textE.style.fontSize -= 7;
         }
         counter -= 0.5;
       }, 500);

@@ -1,7 +1,11 @@
 # Vue 3 + Vite
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+采用 Vue3 + Vite 搭建项目
 
-## Recommended IDE Setup
+# TensorFlow
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+借助 Google 的算法模型，来完成图像识别。
+
+# PiXi
+
+借助 2d canvas 框架 PIXI 完成对小游戏的绘制。

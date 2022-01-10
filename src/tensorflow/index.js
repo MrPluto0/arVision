@@ -40,7 +40,7 @@ async function getImage() {
 }
 
 export default {
-  async init(webcamDom, noWebcamDom) {
+  async init(webcamDom, noWebcamDom, cb) {
     try {
       webcam = await tfd.webcam(webcamDom);
     } catch (e) {
@@ -48,6 +48,7 @@ export default {
       noWebcamDom.style.display = "block";
     }
     truncatedMobileNet = await loadTruncatedMobileNet();
+    cb && cb();
 
     // Warm up the model. This uploads weights to the GPU and compiles the WebGL
     // programs so the first time we collect data from the webcam it will be
@@ -60,7 +61,7 @@ export default {
   /**
    * Sets up and trains the classifier.
    */
-  async train() {
+  async train(callback) {
     isPredicting = false;
     if (controllerDataset.xs == null) {
       throw new Error("Add some examples before training!");
@@ -120,7 +121,7 @@ export default {
       epochs: 20,
       callbacks: {
         onBatchEnd: async (batch, logs) => {
-          console.log("Loss: " + logs.loss.toFixed(5));
+          callback && callback(logs);
         },
       },
     });
