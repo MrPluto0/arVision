@@ -9,8 +9,8 @@ let textE;
 let predictHandler;
 
 const setCenter = (son, parent) => {
-  son.x = parent.width / 2;
-  son.y = parent.height / 2;
+  son.position.x = parent.width / 2;
+  son.position.y = parent.height / 2;
 
   son.pivot.x = son.width / 2;
   son.pivot.y = son.height / 2;
@@ -22,7 +22,6 @@ const setRotate = (ele, angle) => {
 
 const newButton = (parent, text, clickHandler) => {
   let button = new PIXI.Graphics();
-
   button.beginFill(0xffffff);
   button.drawRoundedRect(0, 0, 200, 50, 5);
   button.endFill();
@@ -109,6 +108,7 @@ const showStartContainer = () => {
   });
   mask.addChild(welcomeText);
   setCenter(welcomeText, mask);
+  console.log(welcomeText);
 
   // button to start the game
   startBtn = newButton(mask, "Start", (event) => {
